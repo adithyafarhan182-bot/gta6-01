@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="SUNSET BAY — an original open-world crime game in the browser: a sun-soaked coastal city to explore on foot and by car, with traffic, police, a wanted level, missions and a story.">
+<title>SUNSET BAY — Open-World Crime</title>
+<link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+<canvas id="game" aria-label="SUNSET BAY: an open-world crime game. Drive, steal cars, dodge the police and run the Sunset Job."></canvas>
+<p id="status" role="status" aria-live="polite"></p>
+
+<div id="hud">
+  <div id="top-left">
+    <div id="health"><div id="health-fill"></div><span id="health-text">100 HP</span></div>
+    <div id="cash">$150</div>
+    <div id="stars">☆☆☆☆☆</div>
+  </div>
+  <div id="objective"><span id="objective-label">JOB</span><span id="objective-text"></span></div>
+  <div id="speed">0 mph</div>
+  <div id="message"></div>
+  <div id="banner"><div id="banner-title"></div><div id="banner-sub"></div></div>
+  <canvas id="minimap" width="180" height="180" aria-label="Minimap of Sunset Bay"></canvas>
+  <div id="hint">WASD drive / walk &nbsp;·&nbsp; E enter car &nbsp;·&nbsp; Mouse aim, click shoot &nbsp;·&nbsp; F punch &nbsp;·&nbsp; M next job &nbsp;·&nbsp; Esc pause</div>
+</div>
+
+<div id="menu-start" class="menu">
+  <div class="panel">
+    <h1>SUNSET BAY</h1>
+    <p class="tagline">An open-world crime game — drive it, steal it, outrun it.</p>
+    <p class="story">Riko Vale came to Sunset Bay to drive — and stayed to steal, run and survive. Six jobs stand between him and the Sunset Job, the one that buys his freedom. The city is yours: on foot and by car, past traffic and pedestrians, under the eyes of Bay PD.</p>
+    <div class="controls">
+      <div><b>W A S D</b> — walk / drive</div>
+      <div><b>Mouse</b> — aim, <b>Click</b> — shoot</div>
+      <div><b>E</b> — enter / steal / exit car</div>
+      <div><b>F</b> — punch &nbsp; <b>Shift</b> — run</div>
+      <div><b>M</b> — next job &nbsp; <b>Esc</b> — pause</div>
+    </div>
+    <div class="buttons">
+      <button id="btn-start">New Game</button>
+      <button id="btn-continue">Continue</button>
+      <button id="btn-sound">Sound: On</button>
+    </div>
+    <p class="fine">Original game — its city, characters, cars and story are its own. No network needed; progress saves in your browser.</p>
+  </div>
+</div>
+
+<div id="menu-pause" class="menu">
+  <div class="panel">
+    <h1>PAUSED</h1>
+    <p class="tagline">The bay waits for no one — except right now.</p>
+    <div class="buttons">
+      <button id="btn-resume">Resume</button>
+      <button id="btn-restart">Restart</button>
+      <button id="btn-quit">Save &amp; Quit to Menu</button>
+    </div>
+  </div>
+</div>
+
+<div id="menu-end" class="menu">
+  <div class="panel">
+    <h1 id="end-title">BUSTED</h1>
+    <p id="end-sub" class="tagline"></p>
+    <div class="buttons">
+      <button id="btn-end">Back on the Streets</button>
+    </div>
+  </div>
+</div>
+
+<noscript><p style="position:fixed;top:40%;width:100%;text-align:center">SUNSET BAY needs JavaScript enabled to play.</p></noscript>
+<script type="module" src="./src/main.js"></script>
+</body>
+</html>
