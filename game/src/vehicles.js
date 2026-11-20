@@ -4,7 +4,7 @@
 
 import { ROAD_CENTERS, ROAD_W, TUNE, CAR_COLORS } from './config.js';
 import { clamp, angleDiff, wrapAngle, dist } from './utils.js';
-import { collideBuildings, nearestRoadPoint, isOnRoad } from './city.js';
+import { collideBuildings, nearestRoadPoint, isOnRoad, isInWater } from './city.js';
 import { sfxCrash, sfxSiren } from './audio.js';
 import { hurtPlayer, exitCar } from './player.js';
 
@@ -159,6 +159,11 @@ function updatePlayerCar(G, car, dt, input) {
 function moveCarWithCollision(G, car, dt) {
   const nx = car.x + Math.cos(car.angle) * car.speed * dt;
   const ny = car.y + Math.sin(car.angle) * car.speed * dt;
+  // The sea stops a car: no driving into the bay or the marina basin.
+  if (isInWater(nx, ny)) {
+    car.speed *= 0.4;
+    return;
+  }
   const push = collideBuildings(G.city, nx, ny, 17);
   if (push.x !== 0 || push.y !== 0) {
     if (Math.abs(car.speed) > 260) {
@@ -237,8 +242,15 @@ function updatePoliceCar(G, car, dt) {
   car.angle = wrapAngle(car.angle + turn);
   const maxSpeed = TUNE.policeMaxSpeed * (0.85 + G.wanted * 0.05);
   car.speed += clamp(maxSpeed - car.speed, -500 * dt, 420 * dt);
+  const ox = car.x;
+  const oy = car.y;
   car.x += Math.cos(car.angle) * car.speed * dt;
   car.y += Math.sin(car.angle) * car.speed * dt;
+  if (isInWater(car.x, car.y)) {
+    car.x = ox;
+    car.y = oy;
+    car.speed *= 0.5;
+  }
   const push = collideBuildings(G.city, car.x, car.y, 17);
   car.x += push.x;
   car.y += push.y;
@@ -283,10 +295,23 @@ function resolveCarCollisions(G, dt) {
         const push = (40 - d) / 2;
         const nx = dx / d;
         const ny = dy / d;
+        const ax0 = a.x;
+        const ay0 = a.y;
+        const bx0 = b.x;
+        const by0 = b.y;
         a.x -= nx * push;
         a.y -= ny * push;
         b.x += nx * push;
         b.y += ny * push;
+        // A shunt never pushes a car into the sea.
+        if (isInWater(a.x, a.y)) {
+          a.x = ax0;
+          a.y = ay0;
+        }
+        if (isInWater(b.x, b.y)) {
+          b.x = bx0;
+          b.y = by0;
+        }
         const impact = Math.abs(a.speed - b.speed);
         if (impact > 220) {
           a.hp -= 4;

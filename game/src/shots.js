@@ -49,8 +49,11 @@ function addPeds(G, cx, cy, count) {
 }
 
 function addPoliceChase(G, x, y, count) {
+  // Start behind the player at a gap the police cannot close (they run
+  // 420 against the player's 430), so after warm-up they sit in frame
+  // right on the player's tail instead of under the camera or on the bumper.
   for (let i = 0; i < count; i++) {
-    const car = createCar(x - 120 - i * 90, y + 60 + i * 40, 0, 'police', '#1c2f57');
+    const car = createCar(x - 200 - i * 90, y + 60 + i * 40, 0, 'police', '#1c2f57');
     car.driver = 'police';
     car.speed = 420;
     G.cars.push(car);
@@ -60,6 +63,8 @@ function addPoliceChase(G, x, y, count) {
 export function stageShot(G, name) {
   if (name === 'cover') {
     // The money shot: a three-star chase downtown, HUD + minimap + mission.
+    // The car runs east toward the bank, so the mission beacon is ahead
+    // of the camera and the sunset light falls on the buildings' faces.
     const car = putPlayerInCar(G, 1400, 1400, 0, 'sport', '#c23b2e');
     car.speed = 430;
     G.wanted = 3;
@@ -72,11 +77,16 @@ export function stageShot(G, name) {
     G.messageT = 99;
     G.shotKeys = ['w']; // Keep the getaway rolling for the camera.
     G.shotSpeed = 430; // Pose the chase at speed, not at a standstill.
+    G.shotWarmup = 60; // Short warm-up: the chase is still a chase.
   } else if (name === 'street') {
     // On foot in the city: traffic, pedestrians, the world at street level.
+    // Riko faces west, into the sunset, so the low sun and the long
+    // shadows are in frame behind the intersection. He stands on the road
+    // centre, so the chase camera sits over the road itself — no rooftop
+    // in the foreground, and the lamps (north side) stay out of the shot.
     G.player.x = 1000;
     G.player.y = 1000;
-    G.player.angle = Math.PI / 4;
+    G.player.angle = Math.PI;
     G.camera.x = 1000;
     G.camera.y = 1000;
     G.wanted = 0;
@@ -97,13 +107,14 @@ export function stageShot(G, name) {
     cop.driver = 'police';
     cop.speed = 200;
     G.cars.push(cop);
-    addTraffic(G, 1400, 3000, 4);
+    // No staged traffic ahead: at 480 the cruise would rear-end it and
+    // get shoved off the road into the bay. The road stays clear.
     addPeds(G, 1400, 2960, 6);
     G.message = '';
     G.messageT = 0;
     G.shotKeys = ['w']; // Cruise the beach road for the camera.
     G.shotSpeed = 480; // Pose the cruise at speed, not at a standstill.
-    G.shotWarmup = 60; // Short warm-up: the cop is still closing in.
+    G.shotWarmup = 30; // Short warm-up: the car is still on the road.
   } else if (name === 'mission') {
     // The bank holdout: pistol out, crew closing in, wanted climbing.
     G.player.x = PLACES.bank.x;
@@ -115,11 +126,13 @@ export function stageShot(G, name) {
     startMission(G, 5);
     G.mission.stage = 1;
     G.mission.spawned = false;
+    // The Tide Kings close in from the north, in front of the camera, so
+    // the holdout reads as a fight — not as empty street behind Riko.
     for (let i = 0; i < 3; i++) {
-      const a = (i / 3) * Math.PI * 2;
+      const a = -Math.PI / 2 + (i - 1) * 0.55;
       G.peds.push({
-        x: PLACES.bank.x + Math.cos(a) * 220,
-        y: PLACES.bank.y + Math.sin(a) * 220,
+        x: PLACES.bank.x + Math.cos(a) * 150,
+        y: PLACES.bank.y + Math.sin(a) * 150,
         angle: a + Math.PI,
         speed: 150,
         shirt: '#1c1c22',

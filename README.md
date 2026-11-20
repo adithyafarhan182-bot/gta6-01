@@ -4,7 +4,7 @@
 [![rank](https://make.fun/badge/gta6-01/adithyafarhan182-bot/gta6-01/rank.svg)](https://make.fun/bounty/gta6-01)
 [![reward](https://make.fun/badge/gta6-01/adithyafarhan182-bot/gta6-01/reward.svg)](https://make.fun/bounty/gta6-01)
 
-An original open-world crime game for make.fun's **gta6-01** ("Make GTA 6", $1,666, top 100). A sun-soaked coastal city to explore on foot and by car — with traffic, pedestrians, a wanted level and police who respond, six story missions, combat, a HUD with a minimap, a start screen and saves. Played with keyboard and mouse, entirely offline from static files.
+An original open-world crime game for make.fun's **gta6-01** ("Make GTA 6", $1,666, top 100). A sun-soaked coastal city rendered in full 3D to explore on foot and by car — with traffic, pedestrians, a wanted level and police who respond, six story missions, combat, a HUD with a minimap, a start screen and saves. Played with keyboard and mouse, entirely offline from static files.
 
 ## Play it
 
@@ -54,7 +54,12 @@ game/
     pedestrians.js  the people of Sunset Bay
     combat.js       bullets and the wanted system
     missions.js     the six-job story arc
-    render.js       camera and world drawing
+    render.js       WebGL renderer (three.js) and frame loop
+    world3d.js      3D city: sky, sunset light, buildings, roads,
+                    beach, sea, pier, palms, lamps, clouds
+    actors3d.js     3D cars, people, police strobes, mission beacon,
+                    bullets, particles
+    camera3d.js     third-person chase camera, menu orbit, mouse aim
     hud.js          health, cash, stars, objective, minimap
     save.js         localStorage saves
     shots.js        staged screenshot scenes (?shot=...)

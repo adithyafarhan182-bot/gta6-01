@@ -4,7 +4,7 @@
 
 import { TUNE } from './config.js';
 import { clamp, angleTo, circleRectResolve } from './utils.js';
-import { collideBuildings, clampToWorld, isOnRoad } from './city.js';
+import { collideBuildings, clampToWorld, isOnRoad, isInWater } from './city.js';
 import { fireBullet } from './combat.js';
 import { sfxPunch, sfxShot, sfxClick } from './audio.js';
 
@@ -28,7 +28,9 @@ export function createPlayer(x, y) {
 }
 
 // Mouse position in world coordinates, for aiming.
+// In 3D the mouse ray is cast onto the ground plane by the renderer.
 export function mouseWorld(G) {
+  if (G.screenToGround) return G.screenToGround(G.input.mouse.x, G.input.mouse.y);
   const scale = G.view.scale;
   return {
     x: G.camera.x + (G.input.mouse.x - G.view.w / 2) / scale,
@@ -45,6 +47,7 @@ export function updatePlayer(G, dt) {
   p.hurtCd = Math.max(0, p.hurtCd - dt);
 
   // Aim at the mouse when the pistol is out, else face the walk direction.
+  // (The raycast above gives the ground point under the cursor.)
   const mw = mouseWorld(G);
   p.aim = angleTo(p.x, p.y, mw.x, mw.y);
 
@@ -64,10 +67,17 @@ export function updatePlayer(G, dt) {
     p.moving = false;
   }
 
+  const ox = p.x;
+  const oy = p.y;
   p.x += mx * speed * dt;
   p.y += my * speed * dt;
 
-  // Buildings are solid; the world edge is a wall.
+  // Buildings are solid; the world edge is a wall; the sea is not for
+  // walking — Riko stays on the sand.
+  if (isInWater(p.x, p.y)) {
+    p.x = ox;
+    p.y = oy;
+  }
   const push = collideBuildings(G.city, p.x, p.y, TUNE.playerRadius);
   p.x += push.x;
   p.y += push.y;

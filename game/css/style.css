@@ -17,6 +17,16 @@ html, body {
   height: 100%;
   display: block;
   touch-action: none;
+  background: #2e2a55;
+}
+
+/* Golden-hour wash and vignette over the 3D view, in screen space. */
+#vignette {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: radial-gradient(ellipse at 50% 42%, rgba(255, 170, 80, 0.05) 0%, rgba(255, 170, 80, 0.02) 45%, rgba(20, 10, 40, 0.30) 100%);
 }
 
 #status {
@@ -28,6 +38,7 @@ html, body {
   white-space: nowrap;
 }
 
+/* The HUD floats above the vignette; menus above everything. */
 #hud { position: fixed; inset: 0; pointer-events: none; z-index: 5; }
 
 #top-left {

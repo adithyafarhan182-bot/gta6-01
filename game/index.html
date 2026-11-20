@@ -9,6 +9,7 @@
 </head>
 <body>
 <canvas id="game" aria-label="SUNSET BAY: an open-world crime game. Drive, steal cars, dodge the police and run the Sunset Job."></canvas>
+<div id="vignette" aria-hidden="true"></div>
 <p id="status" role="status" aria-live="polite"></p>
 
 <div id="hud">
@@ -69,6 +70,9 @@
 </div>
 
 <noscript><p style="position:fixed;top:40%;width:100%;text-align:center">SUNSET BAY needs JavaScript enabled to play.</p></noscript>
+<script type="importmap">
+{"imports": {"three": "./vendor/three.module.min.js"}}
+</script>
 <script type="module" src="./src/main.js"></script>
 </body>
 </html>

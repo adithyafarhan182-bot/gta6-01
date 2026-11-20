@@ -4,7 +4,7 @@
 
 import { ROAD_CENTERS, PED_SHIRTS } from './config.js';
 import { clamp, dist } from './utils.js';
-import { isOnRoad } from './city.js';
+import { isOnRoad, isInWater } from './city.js';
 
 export function maintainPeds(G, dt) {
   const p = G.player;
@@ -62,6 +62,12 @@ export function updatePeds(G, dt) {
     if (ped.state === 'dead') continue;
     if (ped.state === 'enemy') continue; // Rival crew moves in missions.js.
 
+    // Anyone who spawned in the sea wades straight back to the shore.
+    if (isInWater(ped.x, ped.y)) {
+      ped.y -= 300 * dt;
+      ped.angle = -Math.PI / 2;
+      continue;
+    }
     // Flee gunfire, fast cars and the player when wanted.
     let threat = null;
     for (const b of G.bullets) {
@@ -83,15 +89,29 @@ export function updatePeds(G, dt) {
     if (ped.state === 'flee') {
       const away = Math.atan2(ped.y - (threat ? threat.y : py), ped.x - (threat ? threat.x : px));
       ped.angle = away;
+      const fx0 = ped.x;
+      const fy0 = ped.y;
       ped.x += Math.cos(away) * 210 * dt;
       ped.y += Math.sin(away) * 210 * dt;
+      // Fleeing never runs into the sea.
+      if (isInWater(ped.x, ped.y)) {
+        ped.x = fx0;
+        ped.y = fy0;
+      }
       if (dist(ped.x, ped.y, px, py) > 500) ped.state = 'walk';
     } else {
       // Stroll: wander slowly, turning at random.
       ped.seed += dt;
       if (Math.random() < dt * 0.25) ped.angle += (Math.random() - 0.5) * 2.2;
+      const wx0 = ped.x;
+      const wy0 = ped.y;
       ped.x += Math.cos(ped.angle) * ped.speed * dt;
       ped.y += Math.sin(ped.angle) * ped.speed * dt;
+      if (isInWater(ped.x, ped.y)) {
+        ped.x = wx0;
+        ped.y = wy0;
+        ped.angle += Math.PI;
+      }
       // Stay near the sidewalks: drift back toward the nearest road edge.
       if (!isOnRoad(ped.x, ped.y) && Math.random() < dt * 0.5) {
         ped.angle = Math.atan2(nearestRoadY(ped.y) - ped.y, nearestRoadX(ped.x) - ped.x);

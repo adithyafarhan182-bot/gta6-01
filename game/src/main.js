@@ -11,14 +11,15 @@ import { maintainTraffic, updateCars, spawnPolice, createCar } from './vehicles.
 import { maintainPeds, updatePeds } from './pedestrians.js';
 import { updateBullets, updateWanted } from './combat.js';
 import { MISSIONS, currentMission, startMission, updateMissions, missionTarget } from './missions.js';
-import { render } from './render.js';
+import { render, resizeRenderer } from './render.js';
 import { initHud, updateHud } from './hud.js';
 import { initAudio, startMusic, setEngine, setMuted } from './audio.js';
 import { hasSave, saveGame, loadGame } from './save.js';
 import { stageShot } from './shots.js';
 
 const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
+// The canvas is owned by the three.js WebGL renderer (see render.js);
+// there is no 2D context here any more.
 
 export function createGame() {
   const city = buildCity();
@@ -52,7 +53,6 @@ export function createGame() {
     camera: { x: PLACES.safehouse.x, y: PLACES.safehouse.y },
     view: { w: window.innerWidth, h: window.innerHeight, scale: 1 },
     input: createInput(canvas),
-    ctx,
     params,
   };
   G.__missionTarget = () => missionTarget(G);
@@ -89,15 +89,13 @@ function applySave(G) {
 function resize(G) {
   G.view.w = window.innerWidth;
   G.view.h = window.innerHeight;
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
+  // The WebGL renderer sizes the canvas itself.
+  resizeRenderer(G);
 }
 
 function computeScale(G) {
-  const base = Math.min(G.view.w / 1150, G.view.h / 780);
-  const driving = G.player.inCar ? 0.88 : 1;
-  const speedZoom = G.player.inCar ? Math.max(0.82, 1 - Math.abs(G.player.inCar.speed) / 4000) : 1;
-  return Math.max(0.6, Math.min(1.25, base * driving * speedZoom));
+  // The 3D chase camera sets its own framing; the 2D zoom is gone.
+  return 1;
 }
 
 function updateCamera(G, dt) {
@@ -108,11 +106,10 @@ function updateCamera(G, dt) {
   G.camera.x += (tx - G.camera.x) * k;
   G.camera.y += (ty - G.camera.y) * k;
   G.view.scale = computeScale(G);
-  // Keep the view inside the world so no black band shows at the edges.
-  const halfW = G.view.w / (2 * G.view.scale);
-  const halfH = G.view.h / (2 * G.view.scale);
-  G.camera.x = Math.max(halfW, Math.min(WORLD.w - halfW, G.camera.x));
-  G.camera.y = Math.max(halfH, Math.min(WORLD.h - halfH, G.camera.y));
+  // Keep the camera focus inside the world; the 3D camera itself may
+  // sit outside it (over the bay, or above a rooftop).
+  G.camera.x = Math.max(60, Math.min(WORLD.w - 60, G.camera.x));
+  G.camera.y = Math.max(60, Math.min(WORLD.h - 60, G.camera.y));
 }
 
 function updateParticles(G, dt) {
@@ -309,9 +306,11 @@ function frame(G, last) {
   const now = performance.now();
   let dt = Math.min(0.05, (now - last) / 1000);
   G.time += dt;
+  G.frameDt = dt;
 
   if (G.mode === 'playing') {
-    updatePlaying(G, dt);
+    // A frozen staged shot renders the posed scene and never advances it.
+    if (!G.frozen) updatePlaying(G, dt);
   } else if (G.mode === 'menu') {
     updateAmbient(G, dt);
   } else if (G.mode === 'paused') {
@@ -361,6 +360,9 @@ function main() {
     // so the shot reads as a chase, not a parking lot.
     if (G.player.inCar && G.shotSpeed) G.player.inCar.speed = G.shotSpeed;
     // Keep the staged message on screen (its timer was set to 99 on purpose).
+    // With ?freeze=1 the scene stays posed after warm-up: the camera fires
+    // on the staged moment instead of on whatever the live game does next.
+    if (G.params.get('freeze')) G.frozen = true;
   } else {
     showMenu('start');
   }

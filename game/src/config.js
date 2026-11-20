@@ -70,3 +70,31 @@ export const PED_SHIRTS = ['#e8e4da', '#c23b2e', '#2e6fc2', '#3aa655', '#e8b73a'
 
 // Named districts, west to east, for the minimap and mission text.
 export const DISTRICTS = ['Old Town', 'North Docks', 'Downtown', 'Marina', 'Palm Park', 'Beachfront'];
+
+// 3D presentation tuning (three.js chase camera).
+export const CAM3D = {
+  fov: 62,
+  footDist: 200,
+  footHeight: 120,
+  carDist: 260,
+  carHeight: 150,
+  lookAhead: 40,
+  menuOrbitR: 1250,
+  menuOrbitH: 620,
+};
+
+// Sunset in the west-southwest: warm light, long shadows.
+export const SUN = {
+  dir: { x: -0.82, y: 0.34, z: 0.42 },
+  color: 0xffb066,
+  skyTop: 0x6b5a9e,
+  skyHorizon: 0xffb060,
+  fog: 0xff9a5c,
+};
+
+// World units of height per building floor in 3D.
+export const FLOOR_H = 17;
+
+// Coordinate convention, shared by the 3D modules: the 2D game lives in
+// x,y on a 3200 x 3200 plane; three.js renders it as x,0,y (the game's y
+// becomes three.js z), and a 2D heading theta becomes rotation.y = -theta.

@@ -143,7 +143,7 @@ function drawMinimap(G) {
     mapCtx.arc(target.x * S, target.y * S, 7 + Math.sin(G.time * 4) * 2, 0, Math.PI * 2);
     mapCtx.stroke();
   }
-  // Player arrow.
+  // Player arrow (white) and, around it, the direction of travel.
   const p = G.player;
   const px = p.inCar ? p.inCar.x : p.x;
   const py = p.inCar ? p.inCar.y : p.y;
@@ -159,11 +159,11 @@ function drawMinimap(G) {
   mapCtx.closePath();
   mapCtx.fill();
   mapCtx.restore();
-  // Viewport box.
+  // Viewport box: the 3D camera reports how much world it sees.
   mapCtx.strokeStyle = 'rgba(255,255,255,0.5)';
   mapCtx.lineWidth = 1;
-  const vw = (G.view.w / G.view.scale) * S;
-  const vh = (G.view.h / G.view.scale) * S;
+  const vw = (G.view.worldW || G.view.w / G.view.scale) * S;
+  const vh = (G.view.worldH || G.view.h / G.view.scale) * S;
   mapCtx.strokeRect(G.camera.x * S - vw / 2, G.camera.y * S - vh / 2, vw, vh);
 }
 

@@ -115,6 +115,7 @@ export function nearestRoadPoint(x, y) {
 }
 
 // Push a circle out of every building it overlaps. Returns total push applied.
+// (The sea is handled separately by isInWater, below.)
 export function collideBuildings(city, x, y, r) {
   let px = 0;
   let py = 0;
@@ -126,6 +127,14 @@ export function collideBuildings(city, x, y, r) {
     }
   }
   return { x: px, y: py };
+}
+
+// The bay water (south edge) and the marina basin (east edge): cars and
+// pedestrians stay out of the sea.
+export function isInWater(x, y) {
+  if (y >= 3060) return true;
+  if (x >= 3040 && y >= 1600 && y <= 2500) return true;
+  return false;
 }
 
 // Keep a point inside the world, with a small margin.
